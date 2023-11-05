@@ -51,11 +51,11 @@ BASEDIR="$(basename "$KERNEL_DIR")"
 # Kernel name
 KERNELNAME=TheOneMemory
 CODENAME=Hayzel
-VARIANT=EAS
+VARIANT=HMP
 BASE=CLO
 
 # Changelogs
-CL_URL="https://github.com/Kendras056/kernel_asus_sdm660/commits/clo"
+CL_URL="https://github.com/Kendras056/kernel_asus_sdm660/commits/clo14"
 
 # The name of the Kernel, to name the ZIP
 ZIPNAME="$KERNELNAME-$CODENAME-$VARIANT-$BASE"
@@ -78,8 +78,8 @@ DEVICE="X00TD"
 DEFCONFIG=X00TD_defconfig
 
 # Specify compiler.
-# 'sdclang' or 'gcc'
-COMPILER=sdclang
+# 'sdclang' or 'gcc' or 'trbclang'
+COMPILER=trbclang
 
 # Build modules. 0 = NO | 1 = YES
 MODULES=0
@@ -217,8 +217,17 @@ DATE=$(TZ=Asia/Jakarta date +"%Y%m%d")
 		GCC32_DIR=$KERNEL_DIR/gcc32
   	fi
 
+	if [ $COMPILER = "trbclang" ]
+	then
+		msger -n "|| Cloning SDClang ||"
+		git clone https://gitlab.com/varunhardgamer/trb_clang -b 16 --depth=1 --single-branch trbclang
+
+		# Toolchain Directory defaults to sdclang
+		TC_DIR=$KERNEL_DIR/trbclang
+  	fi
+
 	msger -n "|| Cloning Anykernel ||"
-	git clone https://github.com/Tiktodz/AnyKernel3.git -b eas AnyKernel3
+	git clone https://github.com/Tiktodz/AnyKernel3.git -b hmp AnyKernel3
 
 	if [ $BUILD_DTBO = 1 ]
 	then
@@ -244,6 +253,9 @@ exports()
 	then
 		KBUILD_COMPILER_STRING=$("$GCC64_DIR"/bin/aarch64-linux-android-gcc --version | head -n 1)
 		PATH=$GCC64_DIR/bin/:$GCC32_DIR/bin/:/usr/bin:$PATH
+	elif [ $COMPILER = "trbclang" ]
+		KBUILD_COMPILER_STRING="$($HOME/trb_clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
+		PATH="$TC_DIR/bin:$PATH"
 	fi
 
 	BOT_MSG_URL="https://api.telegram.org/bot$TG_TOKEN/sendMessage"
@@ -327,6 +339,22 @@ build_kernel()
 			NM=aarch64-linux-android-nm \
 			OBJCOPY=aarch64-linux-android-objcopy \
 			LD=aarch64-linux-android-$LINKER
+		)
+	elif [ $COMPILER = "trbclang" ]
+	then
+		MAKE+=(
+			AS="$TC_DIR/bin/llvm-as" \
+			CC="$TC_DIR/bin/clang" \
+			LD="$TC_DIR/bin/ld.lld" \
+			AR="$TC_DIR/bin/llvm-ar" \
+			NM="$TC_DIR/bin/llvm-nm" \
+			STRIP="$TC_DIR/bin/llvm-strip" \
+			OBJCOPY="$TC_DIR/bin/llvm-objcopy" \
+			OBJDUMP="$TC_DIR/bin/llvm-objdump" \
+			CLANG_TRIPLE=aarch64-linux-gnu- \
+			CROSS_COMPILE="$TC_DIR/bin/clang" \
+			CROSS_COMPILE_COMPAT="$TC_DIR/bin/clang" \
+			CROSS_COMPILE_ARM32="$TC_DIR/bin/clang"
 		)
 	fi
 
