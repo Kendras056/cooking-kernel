@@ -355,7 +355,8 @@ build_kernel()
 			CLANG_TRIPLE=aarch64-linux-gnu- \
 			CROSS_COMPILE="$TC_DIR/bin/clang" \
 			CROSS_COMPILE_COMPAT="$TC_DIR/bin/clang" \
-			CROSS_COMPILE_ARM32="$TC_DIR/bin/clang"
+			CROSS_COMPILE_ARM32="$TC_DIR/bin/clang" \
+                        LD="$LINKER"
 		)
 	fi
 
