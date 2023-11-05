@@ -6,7 +6,7 @@ jobs:
    steps:
       - run:
           command: |
-            git clone --recursive https://github.com/Kendras056/kernel_asus_sdm660 -b clo kernel && cd kernel
+            git clone --recursive https://github.com/Kendras056/kernel_asus_sdm660 -b clo14 kernel && cd kernel
             curl https://raw.githubusercontent.com/Kendras056/cooking-kernel/circle/build.sh > run.sh
             source run.sh
           no_output_timeout : 5h
