@@ -71,15 +71,15 @@ ARCH=arm64
 MODEL="Asus Zenfone Max Pro M1"
 
 # The codename of the device
-DEVICE="X00T"
+DEVICE="X00TD"
 
 # The defconfig which should be used. Get it from config.gz from
 # your device or check source
-DEFCONFIG=X00T_defconfig
+DEFCONFIG=X00TD_defconfig
 
 # Specify compiler.
 # 'sdclang' or 'gcc' or 'trbclang'
-COMPILER=sdclang
+COMPILER=trbclang
 
 # Build modules. 0 = NO | 1 = YES
 MODULES=0
@@ -219,8 +219,8 @@ DATE=$(TZ=Asia/Jakarta date +"%Y%m%d")
 
 	if [ $COMPILER = "trbclang" ]
 	then
-		msger -n "|| Cloning SDClang ||"
-		git clone https://gitlab.com/varunhardgamer/trb_clang -b 16 --depth=1 --single-branch trbclang
+		msger -n "|| Cloning trbClang ||"
+		git clone https://gitlab.com/varunhardgamer/trb_clang --depth=1 --single-branch trbclang
 
 		# Toolchain Directory defaults to sdclang
 		TC_DIR=$KERNEL_DIR/trbclang
